@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href="http://cdn.bootcss.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet">
+    <link href="http://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+</head>
+
+<body ng-app="FileApp">
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <div class="navbar-brand" href="#">
+                    <h2>文件管理器</h2>
+
+                    </a>
+                </div>
+            </div>
+    </nav>
+
+    <div class="container" ng-controller="filelist">
+           <div class="input-group">
+                    <input type="text" class="form-control" ng-model="currentPath">
+                    <span class="input-group-btn">
+                    <button class="btn btn-primary" type="button" ng-click="OpenPath()">Go!</button>
+                </span>
+                </div>
+        <div class="row">
+            <div class=" col-md-8">
+             
+                <div class="panel panel-default">
+                    <div class="panel-heading">文件列表</div>
+                    <div class="panel-body">
+                        <div class="list-group">
+                            <a href="#" class="list-group-item  text-justify" ng-repeat="x in filelist" ng-click="Open(x)">
+                                <i class=" fa fa-{{IconMaps[x.type]}}"></i> <small>{{x.name}}</small> 
+                            </a>
+
+
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">历史纪录</div>
+                    <div class="panel-body">
+                        <div class="list-group">
+                            <a href="#" class="list-group-item text-justify" ng-repeat="x in last   track by $index" ng-click="Last(x)"><small>{{x}}</small> </a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+    <script src="http://cdn.static.runoob.com/libs/angular.js/1.4.6/angular.min.js"></script>
+    <script>
+        var serverUrl="http://localhost:3000";
+        var app = angular.module('FileApp', []);
+        app.controller('filelist', function($scope,$http) {
+            $scope.IconMaps={
+                zip:"file-zip-o",
+                txt:"file-text-o",
+                mp4:"file-movie-o",
+                xlsx:"file-excel-o",
+                js:"file-code-o",
+                cs:"file-code-o",
+                html:"file-code-o",
+                mp3:"file-audio-o",
+                jpg:"file-image-o",
+                jpeg:"file-image-o",
+                png:"file-image-o",
+                pdf:"file-pdf-o",
+                doc:"file-word-o",
+                dir:"folder-o",
+                iso:"file-archive-o"
+            };
+            $scope.filelist=[];
+            $scope.currentPath="D:/";
+            $scope.last=[];
+            $scope.OpenPath=function(){
+                $http.post(serverUrl+'/path',{uri:$scope.currentPath}).success(function(data){
+                        $scope.filelist=data;
+                })
+            }
+            $scope.Open=function(x){
+              
+                if(x.type=="dir"){
+                  $scope.last.push($scope.currentPath);
+                  $scope.currentPath= $scope.currentPath+x.name+"/"
+                    $scope.OpenPath();
+                }else{
+                    window.open(serverUrl+"/detail?uri="+$scope.currentPath+x.fullname);
+                }
+
+            }
+            $scope.Last=function(x){
+                $scope.currentPath= x;
+                $scope.OpenPath();
+            }
+            $scope.OpenPath();
+        });
+    </script>
+</body>
+
+</html>
