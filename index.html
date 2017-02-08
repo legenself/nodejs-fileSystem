@@ -61,9 +61,12 @@
     </div>
     <script src="http://cdn.static.runoob.com/libs/angular.js/1.4.6/angular.min.js"></script>
     <script>
+        //设置服务器地址
         var serverUrl="http://localhost:3000";
+        //angulerjs的模块和控制器设置
         var app = angular.module('FileApp', []);
         app.controller('filelist', function($scope,$http) {
+            //设置将会用到的图标类型，不同的文件用不同的图标
             $scope.IconMaps={
                 zip:"file-zip-o",
                 txt:"file-text-o",
@@ -81,29 +84,44 @@
                 dir:"folder-o",
                 iso:"file-archive-o"
             };
+            //初始化当前窗口需要显示的文件列表
             $scope.filelist=[];
+            //初始化默认当前目录
             $scope.currentPath="D:/";
+            //初始化历史纪录
             $scope.last=[];
+            //打开某个路径时所执行的函数
             $scope.OpenPath=function(){
+                //向某个地址post提交，当前目录
                 $http.post(serverUrl+'/path',{uri:$scope.currentPath}).success(function(data){
+                    //将成功获取的数据赋值给当前显示的文件列表
                         $scope.filelist=data;
                 })
             }
+            //打开文件列表中的某一项时执行的函数
             $scope.Open=function(x){
-              
+              //如果是目录
                 if(x.type=="dir"){
+                  //添加历史纪录
                   $scope.last.push($scope.currentPath);
+                  //修改当前目录
                   $scope.currentPath= $scope.currentPath+x.name+"/"
+                  //当前目录
                     $scope.OpenPath();
                 }else{
+                    //如果是文件，则打开那个文件
                     window.open(serverUrl+"/detail?uri="+$scope.currentPath+x.fullname);
                 }
 
             }
+            //返回某一个路径x
             $scope.Last=function(x){
+                //将当前路径设置为x
                 $scope.currentPath= x;
+                //打开当前路径
                 $scope.OpenPath();
             }
+            //打开当前路径
             $scope.OpenPath();
         });
     </script>
